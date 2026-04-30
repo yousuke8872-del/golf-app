@@ -44,6 +44,17 @@ input[type=date],input[type=time]{color-scheme:light}
 .tp{padding:8px 14px;border:.5px solid var(--bd);border-radius:var(--rp);background:var(--bg);color:var(--tx);font-size:13px;cursor:pointer;transition:all .15s;user-select:none;-webkit-user-select:none;white-space:nowrap}
 .tp.on{background:var(--g);border-color:var(--g);color:#fff;font-weight:600}
 .tp.on2{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:600}
+/* ショット自己評価専用スタイル */
+.eval-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px}
+.eval-btn{padding:14px 4px;border:2px solid var(--bd);border-radius:10px;background:var(--bg);cursor:pointer;text-align:center;transition:all .15s;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:72px;user-select:none;-webkit-user-select:none}
+.eval-btn .eg{font-size:20px;font-weight:800;letter-spacing:-.5px;line-height:1}
+.eval-btn .el{font-size:11px;color:var(--mt);line-height:1.2}
+.eval-btn.on{transform:scale(1.04);box-shadow:0 2px 8px rgba(0,0,0,.18);border-width:2.5px}
+.eval-btn.eA{color:#3B6D11}.eval-btn.eA.on{background:#7FBE3B;border-color:#3B6D11;color:#fff}.eval-btn.eA.on .el{color:rgba(255,255,255,.9)}
+.eval-btn.eB{color:#0C447C}.eval-btn.eB.on{background:#4193D6;border-color:#0C447C;color:#fff}.eval-btn.eB.on .el{color:rgba(255,255,255,.9)}
+.eval-btn.eC{color:#633806}.eval-btn.eC.on{background:#E0A53A;border-color:#633806;color:#fff}.eval-btn.eC.on .el{color:rgba(255,255,255,.9)}
+.eval-btn.eD{color:#712B13}.eval-btn.eD.on{background:#D87047;border-color:#712B13;color:#fff}.eval-btn.eD.on .el{color:rgba(255,255,255,.9)}
+.eval-btn.eE{color:#791F1F}.eval-btn.eE.on{background:#D24545;border-color:#791F1F;color:#fff}.eval-btn.eE.on .el{color:rgba(255,255,255,.9)}
 .btn{width:100%;padding:15px;border:none;border-radius:var(--r);font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;letter-spacing:-.2px}
 .btn-p{background:var(--g);color:#fff}
 .btn-p:active{background:var(--gd)}
@@ -163,10 +174,24 @@ input[type=date],input[type=time]{color-scheme:light}
         <label>コース名を入力</label>
         <input type="text" id="r-course-manual" placeholder="例: ○○カントリークラブ">
       </div>
-      <label>コース（前半/後半）</label>
-      <select id="r-course-half">
-        <option value="">-- コースを選択後に選択 --</option>
-      </select>
+      <div id="r-half-section" style="display:none">
+        <label>前半コース</label>
+        <select id="r-front" onchange="updateRoundPreview()">
+          <option value="">-- 前半を選択 --</option>
+        </select>
+        <label>後半コース（任意・前半のみなら空欄）</label>
+        <select id="r-back" onchange="updateRoundPreview()">
+          <option value="">-- 後半を選択（任意） --</option>
+        </select>
+        <label style="display:flex;align-items:center;gap:8px;margin-top:10px">
+          <input type="checkbox" id="r-extra" style="width:auto;margin:0" onchange="updateRoundPreview()">
+          <span style="font-size:13px;color:var(--tx)">追加1ホール（1.5ラウンド用）</span>
+        </label>
+        <select id="r-extra-course" style="display:none;margin-top:6px" onchange="updateRoundPreview()">
+          <option value="">-- 追加コース選択 --</option>
+        </select>
+        <div id="r-preview" style="margin-top:10px;padding:10px;background:var(--bg);border-radius:var(--rs);font-size:12px;color:var(--mt);display:none"></div>
+      </div>
     </div>
 
     <div class="card">
@@ -206,11 +231,51 @@ input[type=date],input[type=time]{color-scheme:light}
   <div class="hdr">
     <button class="back-btn" onclick="back('s-home')">← 一覧</button>
     <h1 id="holes-ttl">ホール一覧</h1>
+    <button class="hdr-btn" onclick="openRoundEdit()" style="margin-right:4px">⚙</button>
     <button class="hdr-btn" onclick="go('s-summary')">結果</button>
   </div>
   <div id="holes-summary" style="padding:10px 14px 0;flex-shrink:0"></div>
   <div class="body-nb" style="padding:10px 14px;padding-bottom:max(24px,var(--safe-bot))">
     <div id="holes-list" class="list-wrap"></div>
+  </div>
+</div>
+
+<div id="s-round-edit" class="screen">
+  <div class="hdr">
+    <button class="back-btn" onclick="back('s-holes')">← 戻る</button>
+    <h1>ラウンド情報の編集</h1>
+  </div>
+  <div class="body">
+    <div class="card">
+      <div class="ctit">基本情報</div>
+      <label>コース名</label>
+      <input type="text" id="re-course" placeholder="コース名">
+      <label>コース構成（メモ）</label>
+      <input type="text" id="re-half" placeholder="OUT → IN など">
+      <label>プレー日</label>
+      <input type="date" id="re-date">
+      <label>スタート時間</label>
+      <input type="time" id="re-time">
+    </div>
+    <div class="card">
+      <div class="ctit">天気</div>
+      <div class="wx-grp" id="re-wx-grp">
+        <div class="wx-btn" onclick="pickReWx(this,'晴')"><span class="wx-icon">☀️</span><span class="wx-lbl">晴れ</span></div>
+        <div class="wx-btn" onclick="pickReWx(this,'曇')"><span class="wx-icon">☁️</span><span class="wx-lbl">曇り</span></div>
+        <div class="wx-btn" onclick="pickReWx(this,'雨')"><span class="wx-icon">🌧</span><span class="wx-lbl">雨</span></div>
+        <div class="wx-btn" onclick="pickReWx(this,'雪')"><span class="wx-icon">❄️</span><span class="wx-lbl">雪</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ctit">同伴プレーヤー（最大3人・任意）</div>
+      <div id="re-sel-players" style="margin-bottom:8px;min-height:28px"></div>
+      <div style="display:flex;gap:8px">
+        <input type="text" id="re-player-inp" placeholder="名前を追加" style="margin-bottom:0;flex:1" onkeydown="if(event.key==='Enter')addRePlayer()">
+        <button class="btn btn-g btn-s" onclick="addRePlayer()">追加</button>
+      </div>
+    </div>
+    <button class="btn btn-p" onclick="saveRoundEdit()">変更を保存</button>
+    <button class="btn btn-g" style="margin-top:10px;color:var(--red);border-color:#f5c4c4" onclick="confirmDeleteCurrentRound()">🗑 このラウンドを削除</button>
   </div>
 </div>
 
@@ -294,12 +359,12 @@ input[type=date],input[type=time]{color-scheme:light}
     </div>
     <div class="card">
       <div class="ctit">ショット自己評価</div>
-      <div class="tgrp" id="sel-eval">
-        <div class="tp" onclick="pick(this)" style="background:#EAF3DE;border-color:#9FE1CB;color:#3B6D11">A 最高</div>
-        <div class="tp" onclick="pick(this)" style="background:#E6F1FB;border-color:#85B7EB;color:#0C447C">B 良い</div>
-        <div class="tp" onclick="pick(this)" style="background:#FAEEDA;border-color:#FAC775;color:#633806">C 普通</div>
-        <div class="tp" onclick="pick(this)" style="background:#FAECE7;border-color:#F5C4B3;color:#712B13">D ミス</div>
-        <div class="tp" onclick="pick(this)" style="background:#FCEBEB;border-color:#F7C1C1;color:#791F1F">E 大ミス</div>
+      <div class="eval-grid" id="sel-eval">
+        <div class="eval-btn eA" data-v="A" onclick="pickEval(this)"><span class="eg">A</span><span class="el">最高</span></div>
+        <div class="eval-btn eB" data-v="B" onclick="pickEval(this)"><span class="eg">B</span><span class="el">良い</span></div>
+        <div class="eval-btn eC" data-v="C" onclick="pickEval(this)"><span class="eg">C</span><span class="el">普通</span></div>
+        <div class="eval-btn eD" data-v="D" onclick="pickEval(this)"><span class="eg">D</span><span class="el">ミス</span></div>
+        <div class="eval-btn eE" data-v="E" onclick="pickEval(this)"><span class="eg">E</span><span class="el">大ミス</span></div>
       </div>
     </div>
     <div class="card">
@@ -1171,6 +1236,22 @@ function pick(el) {
   el.parentElement.querySelectorAll('.tp').forEach(b => b.classList.remove('on'));
   el.classList.add('on');
 }
+function pickEval(el) {
+  el.parentElement.querySelectorAll('.eval-btn').forEach(b => b.classList.remove('on'));
+  el.classList.add('on');
+}
+function getEvalSel() {
+  const el = document.querySelector('#sel-eval .eval-btn.on');
+  return el ? el.dataset.v : '';
+}
+function setEvalSel(val) {
+  document.querySelectorAll('#sel-eval .eval-btn').forEach(b => {
+    if(b.dataset.v === val) b.classList.add('on');
+  });
+}
+function clearEvalSel() {
+  document.querySelectorAll('#sel-eval .eval-btn').forEach(b => b.classList.remove('on'));
+}
 function getSel(id) {
   const el = document.querySelector('#'+id+' .tp.on');
   if(!el) return '';
@@ -1257,24 +1338,71 @@ function initNewRound() {
 }
 function onCourseChange() {
   const id = $('r-course-sel').value;
-  const half = $('r-course-half');
+  const front = $('r-front');
+  const back = $('r-back');
+  const extra = $('r-extra-course');
+  const halfSec = $('r-half-section');
   const manual = $('r-manual-name');
+  const preview = $('r-preview');
   const course = FUKUOKA.find(c => c.id === id);
-  half.innerHTML = '<option value="">-- 選択 --</option>';
+  front.innerHTML = '<option value="">-- 前半を選択 --</option>';
+  back.innerHTML = '<option value="">-- 後半を選択（任意） --</option>';
+  extra.innerHTML = '<option value="">-- 追加コース選択 --</option>';
+  $('r-extra').checked = false;
+  extra.style.display = 'none';
+  preview.style.display = 'none';
   manual.style.display = 'none';
+  halfSec.style.display = 'none';
+
   if(!course) return;
   if(id === 'manual') { manual.style.display='block'; return; }
+  halfSec.style.display = 'block';
+
   if(!course.courses.length) {
-    half.innerHTML += '<option value="-1">このコースは詳細データ未登録（18ホール自動生成）</option>';
+    front.innerHTML += '<option value="-1" selected>詳細データなし（18H自動生成）</option>';
     return;
   }
   course.courses.forEach((c,i) => {
-    half.innerHTML += `<option value="${i}">${c.name}</option>`;
+    front.innerHTML += `<option value="${i}">${c.name}</option>`;
+    back.innerHTML += `<option value="${i}">${c.name}</option>`;
+    extra.innerHTML += `<option value="${i}">${c.name}</option>`;
   });
-  // 2コースあれば自動でアウト＋イン組み合わせオプションも追加
+  // デフォルト選択：2コース以上ある場合は前半=コース1、後半=コース2
   if(course.courses.length >= 2) {
-    half.innerHTML += `<option value="combo-01">${course.courses[0].name} → ${course.courses[1].name}（18H）</option>`;
+    front.value = '0';
+    back.value = '1';
+  } else if(course.courses.length === 1) {
+    front.value = '0';
   }
+  updateRoundPreview();
+}
+
+function updateRoundPreview() {
+  const id = $('r-course-sel').value;
+  const course = FUKUOKA.find(c => c.id === id);
+  const preview = $('r-preview');
+  const extraChk = $('r-extra');
+  const extraSel = $('r-extra-course');
+  extraSel.style.display = extraChk.checked ? 'block' : 'none';
+  if(!course || !course.courses.length) { preview.style.display='none'; return; }
+  const f = $('r-front').value, b = $('r-back').value;
+  if(f === '' && b === '') { preview.style.display='none'; return; }
+  let parts = [];
+  let totalHoles = 0;
+  if(f !== '') {
+    const fc = course.courses[parseInt(f)];
+    if(fc) { parts.push(`前半: ${fc.name} (${fc.holes.length}H)`); totalHoles += fc.holes.length; }
+  }
+  if(b !== '') {
+    const bc = course.courses[parseInt(b)];
+    if(bc) { parts.push(`後半: ${bc.name} (${bc.holes.length}H)`); totalHoles += bc.holes.length; }
+  }
+  if(extraChk.checked && extraSel.value !== '') {
+    const ec = course.courses[parseInt(extraSel.value)];
+    if(ec) { parts.push(`追加: ${ec.name}の1番のみ`); totalHoles += 1; }
+  }
+  preview.innerHTML = parts.join(' / ') + ` <strong>合計${totalHoles}ホール</strong>`;
+  preview.style.display = 'block';
 }
 
 function renderPlayerCandidates() {
@@ -1320,36 +1448,49 @@ function updateSelectedPlayers() {
 function startRound() {
   const courseId = $('r-course-sel').value;
   const course = FUKUOKA.find(c => c.id === courseId);
-  const halfVal = $('r-course-half').value;
   const courseName = courseId==='manual' ? ($('r-course-manual').value||'コース') :
                      course ? course.name : 'コース';
   let halfName = '';
-  let holes;
+  let holes = [];
 
   if(course && course.id !== 'manual' && course.courses.length) {
-    if(halfVal === 'combo-01') {
-      halfName = `${course.courses[0].name}→${course.courses[1].name}`;
-      holes = [...course.courses[0].holes, ...course.courses[1].holes].map(h => ({
-        num: h.num, par: h.par, dist: h.dist, wind: '無風', shots: [], result: null
-      }));
-    } else {
-      const halfIdx = parseInt(halfVal);
-      if(!isNaN(halfIdx) && halfIdx >= 0 && course.courses[halfIdx]) {
-        halfName = course.courses[halfIdx].name;
-        holes = course.courses[halfIdx].holes.map(h => ({
-          num: h.num, par: h.par, dist: h.dist, wind: '無風', shots: [], result: null
-        }));
-        // 9ホールしかない場合は18ホールまで番号を埋める
-        if(holes.length === 9) {
-          const startNum = holes[holes.length-1].num + 1;
-          for(let i=0;i<9;i++) {
-            holes.push({num:startNum+i, par:4, dist:0, wind:'無風', shots:[], result:null});
-          }
-        }
-      } else {
-        // 詳細データなしの場合
-        holes = Array.from({length:18},(_,i) => ({num:i+1,par:4,dist:0,wind:'無風',shots:[],result:null}));
+    const f = $('r-front').value, b = $('r-back').value;
+    const extraChk = $('r-extra').checked;
+    const extraVal = $('r-extra-course').value;
+    let nameParts = [];
+    let holeCounter = 1;
+
+    if(f !== '' && f !== '-1') {
+      const fc = course.courses[parseInt(f)];
+      if(fc) {
+        nameParts.push(fc.name);
+        fc.holes.forEach(h => {
+          holes.push({num: holeCounter++, par: h.par, dist: h.dist, wind:'無風', shots:[], result:null, courseLabel: fc.name, origNum: h.num});
+        });
       }
+    }
+    if(b !== '') {
+      const bc = course.courses[parseInt(b)];
+      if(bc) {
+        nameParts.push(bc.name);
+        bc.holes.forEach(h => {
+          holes.push({num: holeCounter++, par: h.par, dist: h.dist, wind:'無風', shots:[], result:null, courseLabel: bc.name, origNum: h.num});
+        });
+      }
+    }
+    if(extraChk && extraVal !== '') {
+      const ec = course.courses[parseInt(extraVal)];
+      if(ec && ec.holes.length) {
+        nameParts.push(`+${ec.name}1H`);
+        const eh = ec.holes[0];
+        holes.push({num: holeCounter++, par: eh.par, dist: eh.dist, wind:'無風', shots:[], result:null, courseLabel: ec.name+' (追加)', origNum: eh.num});
+      }
+    }
+    halfName = nameParts.join(' → ');
+
+    if(holes.length === 0) {
+      // 何も選択なしの場合は18H自動生成
+      holes = Array.from({length:18},(_,i) => ({num:i+1,par:4,dist:0,wind:'無風',shots:[],result:null}));
     }
   } else {
     holes = Array.from({length:18},(_,i) => ({num:i+1,par:4,dist:0,wind:'無風',shots:[],result:null}));
@@ -1381,23 +1522,115 @@ function renderHome() {
       const par = done.reduce((s,h)=>s+h.par,0);
       const diff = tot-par;
       const wxIcon = {晴:'☀️',曇:'☁️',雨:'🌧',雪:'❄️'}[r.weather]||'';
-      return `<div style="padding:0 14px 10px"><div class="card" style="cursor:pointer;margin-bottom:0" onclick="loadRound(${ri})">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start">
-          <div>
+      return `<div style="padding:0 14px 10px"><div class="card" style="margin-bottom:0;position:relative">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;cursor:pointer" onclick="loadRound(${ri})">
+          <div style="flex:1;min-width:0">
             <div style="font-weight:700;font-size:15px">${r.course}${r.half?' '+r.half:''}</div>
             <div style="font-size:12px;color:var(--mt);margin-top:2px">${r.date||''}${r.time?' '+r.time:''} ${wxIcon}</div>
             ${r.players&&r.players.length?`<div style="font-size:12px;color:var(--mt)">同伴: ${r.players.join('・')}</div>`:''}
           </div>
-          <div style="text-align:right;flex-shrink:0">
+          <div style="text-align:right;flex-shrink:0;margin-left:8px">
             <div style="font-size:28px;font-weight:800;letter-spacing:-1px">${tot||'−'}</div>
             ${done.length?`<div style="font-size:13px;color:${diff>0?'var(--red)':diff<0?'var(--blue)':'var(--g)'};font-weight:700">${diff>0?'+'+diff:diff===0?'E':diff}</div>`:''}
             <div style="font-size:11px;color:var(--mt)">${done.length}H</div>
           </div>
         </div>
+        <div style="margin-top:10px;padding-top:10px;border-top:.5px solid var(--bd);display:flex;gap:8px">
+          <button class="btn btn-g btn-s" style="flex:1" onclick="loadRound(${ri})">開く</button>
+          <button class="btn btn-g btn-s" style="flex:0 0 auto;color:var(--red);border-color:#f5c4c4" onclick="confirmDeleteRound(${ri})">🗑 削除</button>
+        </div>
       </div></div>`;
     }).join('');
 }
 function loadRound(i) { D.ri=i; go('s-holes'); }
+function confirmDeleteRound(i) {
+  const r = D.rounds[i];
+  if(!r) return;
+  const courseLabel = r.course + (r.half?' '+r.half:'');
+  const dateLabel = r.date || '日付なし';
+  const msg = `このラウンドを削除しますか？\n\n${courseLabel}\n${dateLabel}\n\n※この操作は取り消せません`;
+  if(confirm(msg)) {
+    D.rounds.splice(i,1);
+    if(D.ri === i) D.ri = -1;
+    else if(D.ri > i) D.ri -= 1;
+    sv();
+    renderHome();
+  }
+}
+
+// ===== ラウンド編集機能 =====
+let _reSelectedPlayers = [];
+let _reSelWx = '晴';
+
+function openRoundEdit() {
+  const r = rnd(); if(!r) return;
+  $('re-course').value = r.course || '';
+  $('re-half').value = r.half || '';
+  // 日付をHTMLのdate input形式（yyyy-mm-dd）に変換
+  if(r.date) {
+    const parts = r.date.split('/');
+    if(parts.length === 3) $('re-date').value = `${parts[0]}-${parts[1].padStart(2,'0')}-${parts[2].padStart(2,'0')}`;
+    else $('re-date').value = '';
+  } else $('re-date').value = '';
+  $('re-time').value = r.time || '';
+  _reSelWx = r.weather || '晴';
+  document.querySelectorAll('#re-wx-grp .wx-btn').forEach(b => {
+    b.classList.remove('on');
+    if(b.querySelector('.wx-lbl').textContent.startsWith({晴:'晴',曇:'曇',雨:'雨',雪:'雪'}[_reSelWx])) b.classList.add('on');
+  });
+  _reSelectedPlayers = [...(r.players||[])];
+  renderRePlayers();
+  go('s-round-edit');
+}
+
+function pickReWx(el, val) {
+  document.querySelectorAll('#re-wx-grp .wx-btn').forEach(b => b.classList.remove('on'));
+  el.classList.add('on');
+  _reSelWx = val;
+}
+
+function renderRePlayers() {
+  $('re-sel-players').innerHTML = _reSelectedPlayers.map((p,i) =>
+    `<span class="ptag rm" onclick="removeRePlayer(${i})">${p}</span>`
+  ).join('') || '<div style="font-size:12px;color:var(--mt)">同伴者なし</div>';
+}
+function addRePlayer() {
+  const inp = $('re-player-inp');
+  const name = inp.value.trim();
+  if(!name) return;
+  if(_reSelectedPlayers.includes(name)) { inp.value=''; return; }
+  if(_reSelectedPlayers.length >= 3) { inp.value=''; alert('同伴者は最大3人までです'); return; }
+  _reSelectedPlayers.push(name);
+  if(!D.settings.savedPlayers.includes(name)) D.settings.savedPlayers.push(name);
+  inp.value = '';
+  renderRePlayers();
+}
+function removeRePlayer(i) {
+  _reSelectedPlayers.splice(i,1);
+  renderRePlayers();
+}
+function saveRoundEdit() {
+  const r = rnd(); if(!r) return;
+  r.course = $('re-course').value || 'コース';
+  r.half = $('re-half').value || '';
+  const dateVal = $('re-date').value;
+  r.date = dateVal ? dateVal.replace(/-/g,'/') : '';
+  r.time = $('re-time').value || '';
+  r.weather = _reSelWx;
+  r.players = [..._reSelectedPlayers];
+  sv();
+  back('s-holes');
+}
+function confirmDeleteCurrentRound() {
+  const r = rnd(); if(!r) return;
+  const courseLabel = r.course + (r.half?' '+r.half:'');
+  if(confirm(`このラウンドを削除しますか？\n\n${courseLabel}\n${r.date||'日付なし'}\n\n※この操作は取り消せません`)) {
+    D.rounds.splice(D.ri,1);
+    D.ri = -1;
+    sv();
+    back('s-home');
+  }
+}
 
 function renderHoles() {
   const r = rnd(); if(!r) return;
@@ -1425,10 +1658,16 @@ function renderHoles() {
     const dc = diff2===null?'':(diff2<=-2?'s-eagle':diff2===-1?'s-birdie':diff2===0?'s-par':diff2===1?'s-bogey':'s-dbl');
     const ds = diff2===null?'':(diff2<=-2?'eagle':diff2===-1?'birdie':diff2===0?'E':diff2===1?'+1':'+'+diff2);
     const circ = i===D.hi&&!d?'cur':d?'done':'';
-    return `<div class="lrow" onclick="openHole(${i})">
+    // コース切り替わりの判定（前のホールとcourseLabelが違う場合）
+    const prevLabel = i>0 ? (r.holes[i-1].courseLabel||'') : '';
+    const curLabel = h.courseLabel || '';
+    const showHeader = curLabel && (i===0 || prevLabel !== curLabel);
+    const headerHtml = showHeader ? `<div style="background:var(--bg);padding:8px 14px;font-size:11px;font-weight:700;color:var(--mt);letter-spacing:.5px;border-bottom:.5px solid var(--bd)">${curLabel}</div>` : '';
+    const origNumLabel = h.origNum && h.origNum !== h.num ? `<span style="font-size:11px;color:var(--sub)">(コース${h.origNum}H)</span> ` : '';
+    return headerHtml + `<div class="lrow" onclick="openHole(${i})">
       <div class="hcirc ${circ}">${h.num}</div>
       <div style="flex:1">
-        <div style="font-size:15px;font-weight:600">${h.num}H <span style="font-weight:400;font-size:13px;color:var(--mt)">Par${h.par}${h.dist?' · '+h.dist+'Y':''}</span></div>
+        <div style="font-size:15px;font-weight:600">${h.num}H ${origNumLabel}<span style="font-weight:400;font-size:13px;color:var(--mt)">Par${h.par}${h.dist?' · '+h.dist+'Y':''}</span></div>
         <div style="font-size:12px;color:var(--mt)">${h.shots.length}ショット${d?' · '+h.result.score+'打 ('+h.result.on+'オン'+h.result.putt+'パット)':''}</div>
       </div>
       <div class="${dc}" style="font-size:16px;font-weight:800">${ds}</div>
@@ -1503,7 +1742,8 @@ function buildClubSelector() {
 function openAdd() {
   D.editing = null;
   buildClubSelector();
-  clearSel('sel-club','sel-eval','sel-shape','sel-miss','sel-land','sel-lie');
+  clearSel('sel-club','sel-shape','sel-miss','sel-land','sel-lie');
+  clearEvalSel();
   D.selDir = '';
   ['dir-left','dir-center','dir-right'].forEach(id => $(id).classList.remove('on'));
   ['s-remain','s-dist','s-memo'].forEach(id => $(id).value='');
@@ -1516,10 +1756,11 @@ function editShot(i) {
   D.editing = i;
   buildClubSelector();
   const s = hole().shots[i];
-  clearSel('sel-club','sel-eval','sel-shape','sel-miss','sel-land','sel-lie');
+  clearSel('sel-club','sel-shape','sel-miss','sel-land','sel-lie');
+  clearEvalSel();
   ['dir-left','dir-center','dir-right'].forEach(id => $(id).classList.remove('on'));
   if(s.club) setSel('sel-club',s.club);
-  if(s.eval) setSel('sel-eval',s.eval);
+  if(s.eval) setEvalSel(s.eval);
   if(s.shape) setSel('sel-shape',s.shape);
   if(s.miss) setSel('sel-miss',s.miss);
   if(s.land) setSel('sel-land',s.land);
@@ -1539,7 +1780,7 @@ function editShot(i) {
 function saveShot() {
   const shot = {
     club: getSel('sel-club'), dir: D.selDir,
-    eval: getSel('sel-eval'), shape: getSel('sel-shape'),
+    eval: getEvalSel(), shape: getSel('sel-shape'),
     miss: getSel('sel-miss'), land: getSel('sel-land'), lie: getSel('sel-lie'),
     remain: parseInt($('s-remain').value)||0,
     dist: parseInt($('s-dist').value)||0,

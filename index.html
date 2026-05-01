@@ -55,6 +55,37 @@ input[type=date],input[type=time]{color-scheme:light}
 .eval-btn.eC{color:#633806}.eval-btn.eC.on{background:#E0A53A;border-color:#633806;color:#fff}.eval-btn.eC.on .el{color:rgba(255,255,255,.9)}
 .eval-btn.eD{color:#712B13}.eval-btn.eD.on{background:#D87047;border-color:#712B13;color:#fff}.eval-btn.eD.on .el{color:rgba(255,255,255,.9)}
 .eval-btn.eE{color:#791F1F}.eval-btn.eE.on{background:#D24545;border-color:#791F1F;color:#fff}.eval-btn.eE.on .el{color:rgba(255,255,255,.9)}
+/* 球筋ビジュアル選択 */
+.shape-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:10px}
+.shape-btn{padding:8px 4px;border:1.5px solid var(--bd);border-radius:8px;background:var(--bg);cursor:pointer;text-align:center;display:flex;flex-direction:column;align-items:center;gap:3px;min-height:62px;transition:all .15s;user-select:none;-webkit-user-select:none}
+.shape-btn svg{width:32px;height:24px}
+.shape-btn .sl{font-size:10px;color:var(--mt);line-height:1}
+.shape-btn.on{background:var(--gl);border-color:var(--g);border-width:2px}
+.shape-btn.on .sl{color:var(--gd);font-weight:700}
+.shape-btn.on svg path,.shape-btn.on svg line{stroke:var(--gd)}
+/* ライ横一列 */
+.lie-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-bottom:10px}
+.lie-btn{padding:9px 2px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);cursor:pointer;text-align:center;font-size:11px;line-height:1.2;color:var(--tx);transition:all .15s;user-select:none;-webkit-user-select:none;display:flex;align-items:center;justify-content:center;min-height:48px}
+.lie-btn.on{background:var(--g);border-color:var(--g);color:#fff;font-weight:700}
+/* 弾道（任意・低/高） */
+.traj-row{display:flex;gap:8px;margin-top:8px}
+.traj-btn{flex:1;padding:9px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);cursor:pointer;font-size:13px;text-align:center;transition:all .15s;user-select:none;-webkit-user-select:none}
+.traj-btn.on{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:700}
+/* 複数選択ピル */
+.tp.multi.on{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:600}
+/* ペナルティダイアログ */
+.penalty-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:none;align-items:flex-end;justify-content:center}
+.penalty-overlay.show{display:flex}
+.penalty-sheet{width:100%;max-width:430px;background:var(--surf);border-radius:18px 18px 0 0;padding:18px 16px;padding-bottom:max(18px,var(--safe-bot));box-shadow:0 -6px 24px rgba(0,0,0,.18);max-height:88vh;overflow-y:auto;animation:slideup .25s ease}
+@keyframes slideup{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.penalty-sheet h3{font-size:16px;font-weight:700;margin-bottom:6px}
+.penalty-sheet .pdesc{font-size:13px;color:var(--mt);margin-bottom:14px;line-height:1.5}
+.penalty-opt{padding:14px;border:1px solid var(--bd);border-radius:10px;margin-bottom:8px;cursor:pointer;display:flex;flex-direction:column;gap:3px;transition:all .15s}
+.penalty-opt:active{background:var(--bg)}
+.penalty-opt .pt{font-weight:700;font-size:14px;color:var(--tx)}
+.penalty-opt .pd{font-size:12px;color:var(--mt);line-height:1.4}
+.penalty-opt.recommend{border-color:var(--g);background:var(--gl)}
+.penalty-opt.recommend .pt{color:var(--gd)}
 .btn{width:100%;padding:15px;border:none;border-radius:var(--r);font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;letter-spacing:-.2px}
 .btn-p{background:var(--g);color:#fff}
 .btn-p:active{background:var(--gd)}
@@ -296,18 +327,22 @@ input[type=date],input[type=time]{color-scheme:light}
       <input type="number" id="h-dist" placeholder="例: 328">
     </div>
     <div class="card">
-      <div class="ctit">風向き</div>
+      <div class="ctit">風向き（矢印=ボールに与える効果の方向）</div>
       <div class="wind-compass" id="wind-compass">
-        <div class="wbtn" onclick="pickW(this,'左奥')"><div class="warrow">↖</div><div style="font-size:11px">左奥</div></div>
-        <div class="wbtn" onclick="pickW(this,'アゲンスト')"><div class="warrow">↑</div><div style="font-size:11px">アゲ</div></div>
-        <div class="wbtn" onclick="pickW(this,'右奥')"><div class="warrow">↗</div><div style="font-size:11px">右奥</div></div>
-        <div class="wbtn" onclick="pickW(this,'左から')"><div class="warrow">←</div><div style="font-size:11px">左</div></div>
+        <div class="wbtn" onclick="pickW(this,'右前(アゲ&左から)')"><div class="warrow">↙</div><div style="font-size:11px">アゲ&左</div></div>
+        <div class="wbtn" onclick="pickW(this,'アゲンスト')"><div class="warrow">↓</div><div style="font-size:11px">アゲ</div></div>
+        <div class="wbtn" onclick="pickW(this,'左前(アゲ&右から)')"><div class="warrow">↘</div><div style="font-size:11px">アゲ&右</div></div>
+        <div class="wbtn" onclick="pickW(this,'右から')"><div class="warrow">←</div><div style="font-size:11px">右から</div></div>
         <div class="wbtn center on" onclick="pickW(this,'無風')"><div style="font-size:16px">○</div><div style="font-size:11px">無風</div></div>
-        <div class="wbtn" onclick="pickW(this,'右から')"><div class="warrow">→</div><div style="font-size:11px">右</div></div>
-        <div class="wbtn" onclick="pickW(this,'左前')"><div class="warrow">↙</div><div style="font-size:11px">左前</div></div>
-        <div class="wbtn" onclick="pickW(this,'フォロー')"><div class="warrow">↓</div><div style="font-size:11px">フォロー</div></div>
-        <div class="wbtn" onclick="pickW(this,'右前')"><div class="warrow">↘</div><div style="font-size:11px">右前</div></div>
+        <div class="wbtn" onclick="pickW(this,'左から')"><div class="warrow">→</div><div style="font-size:11px">左から</div></div>
+        <div class="wbtn" onclick="pickW(this,'右奥(フォロー&左から)')"><div class="warrow">↖</div><div style="font-size:11px">フォロー&左</div></div>
+        <div class="wbtn" onclick="pickW(this,'フォロー')"><div class="warrow">↑</div><div style="font-size:11px">フォロー</div></div>
+        <div class="wbtn" onclick="pickW(this,'左奥(フォロー&右から)')"><div class="warrow">↗</div><div style="font-size:11px">フォロー&右</div></div>
       </div>
+    </div>
+    <div class="card">
+      <div class="ctit">ホールメモ（任意）</div>
+      <input type="text" id="h-memo" placeholder="例: 前日の大雨でぬかるみ多い">
     </div>
     <button class="btn btn-p" onclick="startHole()">ショット入力へ →</button>
   </div>
@@ -335,7 +370,21 @@ input[type=date],input[type=time]{color-scheme:light}
     <button class="back-btn" onclick="back('s-shots')">← 戻る</button>
     <h1 id="add-ttl">ショット追加</h1>
   </div>
-  <div class="body">
+  <div class="body" id="add-shot-body">
+    <div class="card">
+      <label>残りヤード（1打目はホール距離・2打目以降は前回引算で自動）</label>
+      <input type="number" id="s-remain" placeholder="例: 150">
+    </div>
+    <div class="card">
+      <div class="ctit">ライ（1打目はフラット自動）</div>
+      <div class="lie-grid" id="sel-lie">
+        <div class="lie-btn" data-v="フラット" onclick="pickLie(this)">フラット</div>
+        <div class="lie-btn" data-v="左足下がり" onclick="pickLie(this)">左足<br>下がり</div>
+        <div class="lie-btn" data-v="左足上がり" onclick="pickLie(this)">左足<br>上がり</div>
+        <div class="lie-btn" data-v="つま先上がり" onclick="pickLie(this)">つま先<br>上がり</div>
+        <div class="lie-btn" data-v="つま先下がり" onclick="pickLie(this)">つま先<br>下がり</div>
+      </div>
+    </div>
     <div class="card">
       <div class="ctit">番手</div>
       <div class="tgrp" id="sel-club"></div>
@@ -368,29 +417,52 @@ input[type=date],input[type=time]{color-scheme:light}
       </div>
     </div>
     <div class="card">
-      <div class="ctit">球筋</div>
-      <div class="tgrp" id="sel-shape">
-        <div class="tp" onclick="pick(this)">ストレート</div>
-        <div class="tp" onclick="pick(this)">ドロー</div>
-        <div class="tp" onclick="pick(this)">フェード</div>
-        <div class="tp" onclick="pick(this)">フック</div>
-        <div class="tp" onclick="pick(this)">スライス</div>
-        <div class="tp" onclick="pick(this)">低弾道</div>
-        <div class="tp" onclick="pick(this)">高弾道</div>
+      <div class="ctit">球筋（複数選択可・実際の曲がり方で）</div>
+      <div class="shape-grid" id="sel-shape">
+        <div class="shape-btn" data-v="フック" onclick="toggleShape(this)">
+          <svg viewBox="0 0 32 24"><path d="M16 22 Q16 12 4 4" stroke="#888" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="4" cy="4" r="2" fill="#888"/></svg>
+          <span class="sl">フック</span>
+        </div>
+        <div class="shape-btn" data-v="ドロー" onclick="toggleShape(this)">
+          <svg viewBox="0 0 32 24"><path d="M16 22 Q14 12 10 4" stroke="#888" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="10" cy="4" r="2" fill="#888"/></svg>
+          <span class="sl">ドロー</span>
+        </div>
+        <div class="shape-btn" data-v="ストレート" onclick="toggleShape(this)">
+          <svg viewBox="0 0 32 24"><line x1="16" y1="22" x2="16" y2="4" stroke="#888" stroke-width="2" stroke-linecap="round"/><circle cx="16" cy="4" r="2" fill="#888"/></svg>
+          <span class="sl">ストレート</span>
+        </div>
+        <div class="shape-btn" data-v="フェード" onclick="toggleShape(this)">
+          <svg viewBox="0 0 32 24"><path d="M16 22 Q18 12 22 4" stroke="#888" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="22" cy="4" r="2" fill="#888"/></svg>
+          <span class="sl">フェード</span>
+        </div>
+        <div class="shape-btn" data-v="スライス" onclick="toggleShape(this)">
+          <svg viewBox="0 0 32 24"><path d="M16 22 Q16 12 28 4" stroke="#888" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="28" cy="4" r="2" fill="#888"/></svg>
+          <span class="sl">スライス</span>
+        </div>
       </div>
-      <div class="ctit">ミス内容</div>
+      <div class="ctit" style="margin-top:8px">弾道（極端な場合のみ・任意）</div>
+      <div class="traj-row" id="sel-traj">
+        <div class="traj-btn" data-v="低弾道" onclick="toggleTraj(this)">⤵ 低弾道</div>
+        <div class="traj-btn" data-v="高弾道" onclick="toggleTraj(this)">⤴ 高弾道</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ctit">ショット結果（複数選択可・もう一度押すと解除）</div>
       <div class="tgrp" id="sel-miss">
-        <div class="tp" onclick="pick(this)">ナイス</div>
-        <div class="tp" onclick="pick(this)">クリーン</div>
-        <div class="tp" onclick="pick(this)">トップ</div>
-        <div class="tp" onclick="pick(this)">ダフリ</div>
-        <div class="tp" onclick="pick(this)">シャンク</div>
-        <div class="tp" onclick="pick(this)">テンプラ</div>
-        <div class="tp" onclick="pick(this)">ヒール</div>
-        <div class="tp" onclick="pick(this)">チーピン</div>
-        <div class="tp" onclick="pick(this)">プッシュ</div>
-        <div class="tp" onclick="pick(this)">プル</div>
+        <div class="tp multi" onclick="toggleMulti(this)">クリーン</div>
+        <div class="tp multi" onclick="toggleMulti(this)">トップ</div>
+        <div class="tp multi" onclick="toggleMulti(this)">ダフリ</div>
+        <div class="tp multi" onclick="toggleMulti(this)">シャンク</div>
+        <div class="tp multi" onclick="toggleMulti(this)">テンプラ</div>
+        <div class="tp multi" onclick="toggleMulti(this)">ヒール</div>
+        <div class="tp multi" onclick="toggleMulti(this)">トゥ</div>
+        <div class="tp multi" onclick="toggleMulti(this)">チーピン</div>
+        <div class="tp multi" onclick="toggleMulti(this)">プッシュ</div>
+        <div class="tp multi" onclick="toggleMulti(this)">プル</div>
       </div>
+      <div style="font-size:11px;color:var(--mt);margin-top:-4px">※未選択なら「普通」として記録</div>
+    </div>
+    <div class="card">
       <div class="ctit">着地場所</div>
       <div class="tgrp" id="sel-land">
         <div class="tp" onclick="pick(this)">FW</div>
@@ -402,28 +474,24 @@ input[type=date],input[type=time]{color-scheme:light}
         <div class="tp" onclick="pick(this)">グリーン</div>
         <div class="tp" onclick="pick(this)">ショート</div>
         <div class="tp" onclick="pick(this)">オーバー</div>
-        <div class="tp" onclick="pick(this)">OB</div>
-        <div class="tp" onclick="pick(this)">ペナルティ</div>
+        <div class="tp" onclick="pick(this)" style="background:#FCEBEB;border-color:#F7C1C1;color:#791F1F">OB</div>
+        <div class="tp" onclick="pick(this)" style="background:#E6F1FB;border-color:#85B7EB;color:#0C447C">池ポチャ</div>
+        <div class="tp" onclick="pick(this)" style="background:#FAEEDA;border-color:#FAC775;color:#633806">ペナルティ</div>
       </div>
     </div>
     <div class="card">
-      <label>残りヤード（任意）</label>
-      <input type="number" id="s-remain" placeholder="例: 150">
-      <label>飛距離（任意）</label>
+      <label>飛距離（任意・キャリー＋ラン）</label>
       <input type="number" id="s-dist" placeholder="例: 230">
-      <label>ライ（任意）</label>
-      <div class="tgrp" id="sel-lie">
-        <div class="tp" onclick="pick(this)">フラット</div>
-        <div class="tp" onclick="pick(this)">左足下がり</div>
-        <div class="tp" onclick="pick(this)">左足上がり</div>
-        <div class="tp" onclick="pick(this)">つま先上がり</div>
-        <div class="tp" onclick="pick(this)">つま先下がり</div>
-      </div>
       <label>メモ（任意）</label>
       <input type="text" id="s-memo" placeholder="自由入力">
     </div>
-    <button class="btn btn-p" onclick="saveShot()">保存して次のショットへ</button>
+    <button class="btn btn-p" onclick="saveShot()">保存</button>
   </div>
+</div>
+
+<!-- ペナルティ確認ダイアログ -->
+<div class="penalty-overlay" id="penalty-overlay" onclick="if(event.target===this)dismissPenalty()">
+  <div class="penalty-sheet" id="penalty-sheet" onclick="event.stopPropagation()"></div>
 </div>
 
 <div id="s-result" class="screen">
@@ -433,39 +501,47 @@ input[type=date],input[type=time]{color-scheme:light}
   </div>
   <div class="body">
     <div class="card">
-      <div class="ctit">オン数</div>
+      <div class="ctit">スコア（オン数・パット数を選ぶと自動計算）</div>
+      <div style="display:flex;gap:10px;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="font-size:12px;color:var(--mt)">記録ショット: <strong id="r-rec-shots">0</strong>打 + 罰打 <strong id="r-pen">0</strong></div>
+        <div style="font-size:13px;color:var(--mt)">合計</div>
+        <div style="font-size:24px;font-weight:800" id="r-auto-total">0</div>
+      </div>
+      <div class="ctit" style="margin-top:6px">オン数</div>
       <div class="tgrp" id="sel-on">
-        <div class="tp" onclick="pick(this)">1</div>
-        <div class="tp" onclick="pick(this)">2</div>
-        <div class="tp" onclick="pick(this)">3</div>
-        <div class="tp" onclick="pick(this)">4</div>
-        <div class="tp" onclick="pick(this)">5</div>
+        <div class="tp" onclick="pickOn(this,1)">1</div>
+        <div class="tp" onclick="pickOn(this,2)">2</div>
+        <div class="tp" onclick="pickOn(this,3)">3</div>
+        <div class="tp" onclick="pickOn(this,4)">4</div>
+        <div class="tp" onclick="pickOn(this,5)">5</div>
+        <div class="tp" onclick="pickOn(this,6)">6</div>
+        <div class="tp" onclick="pickOn(this,7)">7+</div>
+        <input type="number" id="r-on-other" placeholder="他" style="width:60px;margin:0;padding:6px 8px;font-size:13px" oninput="onOnPuttOtherInput('on')">
       </div>
-      <div class="ctit">パット数</div>
+      <div class="ctit" style="margin-top:8px">パット数（OKでホールアウト時はOKボタン）</div>
       <div class="tgrp" id="sel-putt">
-        <div class="tp" onclick="pick(this)">0</div>
-        <div class="tp" onclick="pick(this)">1</div>
-        <div class="tp" onclick="pick(this)">2</div>
-        <div class="tp" onclick="pick(this)">3</div>
-        <div class="tp" onclick="pick(this)">4</div>
+        <div class="tp" onclick="pickPutt(this,0)">0(チップ等)</div>
+        <div class="tp" onclick="pickPutt(this,1)">1</div>
+        <div class="tp" onclick="pickPutt(this,2)">2</div>
+        <div class="tp" onclick="pickPutt(this,3)">3</div>
+        <div class="tp" onclick="pickPutt(this,4)">4</div>
+        <div class="tp" onclick="pickPutt(this,5)">5</div>
+        <div class="tp" onclick="pickPutt(this,6)">6+</div>
+        <input type="number" id="r-putt-other" placeholder="他" style="width:60px;margin:0;padding:6px 8px;font-size:13px" oninput="onOnPuttOtherInput('putt')">
       </div>
-      <label>スコア（手入力・確認）</label>
-      <input type="number" id="h-score" placeholder="例: 5" oninput="chkScore()">
-      <div id="score-warn" class="warn" style="display:none">⚠ ショット数(<span id="auto-sc"></span>打)と異なります</div>
+      <div style="margin-top:8px">
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px">
+          <input type="checkbox" id="r-ok" style="width:auto;margin:0" onchange="updateAutoTotal()">
+          <span>最後のパットは「OK」でもらった（最終パットを打たずに終了）</span>
+        </label>
+      </div>
+      <label style="margin-top:10px">合計打数（自動・修正したい場合のみ手入力）</label>
+      <input type="number" id="h-score" placeholder="自動計算されます" oninput="chkScore()">
+      <div id="score-warn" class="warn" style="display:none">※ 自動計算と異なる値になっています（残します）</div>
     </div>
-    <div class="card">
+    <div class="card" id="putt-detail-card">
       <div class="ctit">パット詳細（任意）</div>
-      <label>1パット目 距離（歩）</label>
-      <input type="number" id="p1d" placeholder="例: 8">
-      <label>1パット目 結果</label>
-      <div class="tgrp" id="sel-p1">
-        <div class="tp" onclick="pick(this)">IN</div>
-        <div class="tp" onclick="pick(this)">ショート</div>
-        <div class="tp" onclick="pick(this)">オーバー</div>
-        <div class="tp" onclick="pick(this)">ミス</div>
-      </div>
-      <label>原因メモ（任意）</label>
-      <input type="text" id="p1m" placeholder="例: ラインを読めなかった">
+      <div id="putt-details-list"></div>
     </div>
     <button class="btn btn-p" onclick="saveResult()">このホールを保存</button>
   </div>
@@ -1215,18 +1291,23 @@ function go(id) {
   el.classList.remove('left');
   el.classList.add('active');
   el.scrollTop = 0;
+  // 画面内の .body / .body-nb もトップへ
+  el.querySelectorAll('.body, .body-nb').forEach(b => b.scrollTop = 0);
   onScreen(id);
 }
 function back(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active','left'));
-  $(id).classList.add('active');
-  $(id).scrollTop = 0;
+  const el = $(id);
+  el.classList.add('active');
+  el.scrollTop = 0;
+  el.querySelectorAll('.body, .body-nb').forEach(b => b.scrollTop = 0);
   onScreen(id);
 }
 function onScreen(id) {
   if(id==='s-home') renderHome();
   if(id==='s-holes') renderHoles();
   if(id==='s-shots') renderShots();
+  if(id==='s-result') initResultScreen();
   if(id==='s-summary') renderSummary();
   if(id==='s-settings') renderSettings();
   if(id==='s-new-round') initNewRound();
@@ -1511,10 +1592,108 @@ function startRound() {
   go('s-holes');
 }
 
+// ホームの統計期間状態
+let _homeStatPeriod = 'r5'; // r5=直近5ラウンド, y1=1年, h6=半年, all=全部
+
+function setHomePeriod(p) {
+  _homeStatPeriod = p;
+  renderHome();
+}
+
+function getStatRounds() {
+  const now = Date.now();
+  const dayMs = 86400000;
+  const filterFn = {
+    r5: (rs) => rs.slice(-5),
+    y1: (rs) => rs.filter(r => {
+      if(!r.date) return false;
+      const t = Date.parse(r.date.replace(/\//g,'-'));
+      return !isNaN(t) && (now - t) <= dayMs * 365;
+    }),
+    h6: (rs) => rs.filter(r => {
+      if(!r.date) return false;
+      const t = Date.parse(r.date.replace(/\//g,'-'));
+      return !isNaN(t) && (now - t) <= dayMs * 183;
+    }),
+    all: (rs) => rs
+  };
+  return (filterFn[_homeStatPeriod]||filterFn.r5)(D.rounds.filter(r => r.holes.some(h => h.result)));
+}
+
+function renderHomeStats() {
+  const rs = getStatRounds();
+  if(!rs.length) return '';
+  const totals = rs.map(r => {
+    const done = r.holes.filter(h=>h.result);
+    const tot = done.reduce((s,h)=>s+h.result.score,0);
+    const putts = done.reduce((s,h)=>s+h.result.putt,0);
+    return { tot, putts, done: done.length };
+  });
+  const validScores = totals.filter(t => t.done >= 9);  // 9ホール以上完了したラウンドのみ
+  const best = validScores.length ? Math.min(...validScores.map(t => t.tot)) : '−';
+  const avgScore = validScores.length ? Math.round(validScores.reduce((s,t)=>s+t.tot,0)/validScores.length) : '−';
+  const avgPutts = validScores.length ? (validScores.reduce((s,t)=>s+t.putts,0)/validScores.length).toFixed(1) : '−';
+  // ドライバー統計
+  const drShots = rs.flatMap(r => r.holes.flatMap(h => h.shots.filter(s => s.club === 'DR')));
+  const drDists = drShots.map(s => s.dist).filter(d => d > 0);
+  const drAvgDist = drDists.length ? Math.round(drDists.reduce((a,b)=>a+b,0)/drDists.length) : '−';
+  // ドライバー球筋
+  const drShapeCount = {};
+  drShots.forEach(s => {
+    const shapes = s.shapes || (s.shape ? [s.shape] : []);
+    shapes.forEach(sh => drShapeCount[sh] = (drShapeCount[sh]||0)+1);
+  });
+  const topShape = Object.entries(drShapeCount).sort((a,b)=>b[1]-a[1])[0];
+  const drShapeLabel = topShape ? `${topShape[0]}(${topShape[1]})` : '−';
+  // ミス統計
+  const allShots = rs.flatMap(r => r.holes.flatMap(h => h.shots));
+  const missCount = {};
+  allShots.forEach(s => {
+    const ms = s.misses || (s.miss ? [s.miss] : []);
+    ms.forEach(m => missCount[m] = (missCount[m]||0)+1);
+  });
+  const topMiss = Object.entries(missCount).sort((a,b)=>b[1]-a[1])[0];
+  const topMissLabel = topMiss ? `${topMiss[0]}(${topMiss[1]})` : '−';
+  return `<div style="padding:0 14px 8px">
+    <div class="card" style="margin-bottom:0;padding:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div style="font-size:11px;font-weight:700;color:var(--mt);letter-spacing:.6px;text-transform:uppercase">直近の統計</div>
+        <div style="display:flex;gap:4px">
+          <span class="tp" style="padding:4px 10px;font-size:11px;${_homeStatPeriod==='r5'?'background:var(--g);color:#fff;border-color:var(--g)':''}" onclick="setHomePeriod('r5')">直近5</span>
+          <span class="tp" style="padding:4px 10px;font-size:11px;${_homeStatPeriod==='h6'?'background:var(--g);color:#fff;border-color:var(--g)':''}" onclick="setHomePeriod('h6')">半年</span>
+          <span class="tp" style="padding:4px 10px;font-size:11px;${_homeStatPeriod==='y1'?'background:var(--g);color:#fff;border-color:var(--g)':''}" onclick="setHomePeriod('y1')">1年</span>
+          <span class="tp" style="padding:4px 10px;font-size:11px;${_homeStatPeriod==='all'?'background:var(--g);color:#fff;border-color:var(--g)':''}" onclick="setHomePeriod('all')">全</span>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+        <div style="text-align:center;padding:8px;background:var(--bg);border-radius:8px">
+          <div style="font-size:20px;font-weight:800;color:var(--g)">${best}</div>
+          <div style="font-size:10px;color:var(--mt)">ベスト</div>
+        </div>
+        <div style="text-align:center;padding:8px;background:var(--bg);border-radius:8px">
+          <div style="font-size:20px;font-weight:800">${avgScore}</div>
+          <div style="font-size:10px;color:var(--mt)">平均スコア</div>
+        </div>
+        <div style="text-align:center;padding:8px;background:var(--bg);border-radius:8px">
+          <div style="font-size:20px;font-weight:800">${avgPutts}</div>
+          <div style="font-size:10px;color:var(--mt)">平均パット</div>
+        </div>
+      </div>
+      <div style="margin-top:8px;padding:8px;background:var(--bg);border-radius:8px;font-size:12px;line-height:1.7">
+        <div>🎯 DR平均飛距離：<strong>${drAvgDist}${drAvgDist!=='−'?'Y':''}</strong>（${drDists.length}発）</div>
+        <div>📐 DR多い球筋：<strong>${drShapeLabel}</strong></div>
+        <div>⚠ 多いミス：<strong>${topMissLabel}</strong></div>
+      </div>
+      <div style="text-align:right;font-size:10px;color:var(--sub);margin-top:6px">${rs.length}ラウンドから集計</div>
+    </div>
+  </div>`;
+}
+
 function renderHome() {
   const el = $('home-hist');
   if(!D.rounds.length) { el.innerHTML=''; return; }
-  el.innerHTML = '<div class="sec-hdr">過去のラウンド</div>' +
+  // 統計＋過去ラウンド一覧
+  el.innerHTML = renderHomeStats() + '<div class="sec-hdr">過去のラウンド</div>' +
     D.rounds.slice().reverse().map((r,i) => {
       const ri = D.rounds.length-1-i;
       const done = r.holes.filter(h=>h.result);
@@ -1522,8 +1701,8 @@ function renderHome() {
       const par = done.reduce((s,h)=>s+h.par,0);
       const diff = tot-par;
       const wxIcon = {晴:'☀️',曇:'☁️',雨:'🌧',雪:'❄️'}[r.weather]||'';
-      return `<div style="padding:0 14px 10px"><div class="card" style="margin-bottom:0;position:relative">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;cursor:pointer" onclick="loadRound(${ri})">
+      return `<div style="padding:0 14px 10px"><div class="card" style="margin-bottom:0;cursor:pointer" onclick="loadRound(${ri})">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
           <div style="flex:1;min-width:0">
             <div style="font-weight:700;font-size:15px">${r.course}${r.half?' '+r.half:''}</div>
             <div style="font-size:12px;color:var(--mt);margin-top:2px">${r.date||''}${r.time?' '+r.time:''} ${wxIcon}</div>
@@ -1534,10 +1713,6 @@ function renderHome() {
             ${done.length?`<div style="font-size:13px;color:${diff>0?'var(--red)':diff<0?'var(--blue)':'var(--g)'};font-weight:700">${diff>0?'+'+diff:diff===0?'E':diff}</div>`:''}
             <div style="font-size:11px;color:var(--mt)">${done.length}H</div>
           </div>
-        </div>
-        <div style="margin-top:10px;padding-top:10px;border-top:.5px solid var(--bd);display:flex;gap:8px">
-          <button class="btn btn-g btn-s" style="flex:1" onclick="loadRound(${ri})">開く</button>
-          <button class="btn btn-g btn-s" style="flex:0 0 auto;color:var(--red);border-color:#f5c4c4" onclick="confirmDeleteRound(${ri})">🗑 削除</button>
         </div>
       </div></div>`;
     }).join('');
@@ -1682,16 +1857,16 @@ function openHole(i) {
   clearSel('sel-par');
   setSel('sel-par', String(h.par));
   $('h-dist').value = h.dist||'';
+  $('h-memo').value = h.memo||'';
   document.querySelectorAll('#wind-compass .wbtn').forEach(b => b.classList.remove('on'));
-  const centerBtn = document.querySelector('#wind-compass .wbtn.center');
-  if(!h.wind||h.wind==='無風') centerBtn.classList.add('on');
-  else {
-    document.querySelectorAll('#wind-compass .wbtn').forEach(b => {
-      const lbl = b.querySelector('div:last-child');
-      if(lbl && (h.wind.includes(lbl.textContent) || lbl.textContent.includes(h.wind.substring(0,2)))) b.classList.add('on');
-    });
+  const w = h.wind||'無風';
+  document.querySelectorAll('#wind-compass .wbtn').forEach(b => {
+    if(b.getAttribute('onclick') && b.getAttribute('onclick').includes(`'${w}'`)) b.classList.add('on');
+  });
+  if(!document.querySelector('#wind-compass .wbtn.on')) {
+    document.querySelector('#wind-compass .wbtn.center').classList.add('on');
   }
-  D.selWind = h.wind||'無風';
+  D.selWind = w;
   go('s-hole-start');
 }
 
@@ -1700,9 +1875,10 @@ function startHole() {
   h.par = parseInt(getSel('sel-par'))||4;
   h.dist = parseInt($('h-dist').value)||0;
   h.wind = D.selWind||'無風';
+  h.memo = $('h-memo').value || '';
   sv();
   $('shots-ttl').textContent = `${h.num}H · Par${h.par}`;
-  $('shots-info').textContent = `${h.dist?h.dist+'Y · ':''}風: ${h.wind}`;
+  $('shots-info').textContent = `${h.dist?h.dist+'Y · ':''}風: ${h.wind}${h.memo?' · '+h.memo:''}`;
   $('result-ttl').textContent = `${h.num}H 結果入力`;
   const prog = Math.round((D.hi+1)/rnd().holes.length*100);
   $('hole-prog').style.width = prog+'%';
@@ -1712,25 +1888,32 @@ function startHole() {
 function renderShots() {
   const h = hole(); if(!h) return;
   $('shots-ttl').textContent = `${h.num}H · Par${h.par}`;
-  $('shots-info').textContent = `${h.dist?h.dist+'Y · ':''}風: ${h.wind}`;
+  $('shots-info').textContent = `${h.dist?h.dist+'Y · ':''}風: ${h.wind||'無風'}${h.memo?' · '+h.memo:''}`;
   if(!h.shots.length) {
     $('shots-list').innerHTML = '<div style="padding:28px;text-align:center;color:var(--mt);font-size:14px">まだショットがありません<br><span style="font-size:12px">右上の「＋ 追加」からどうぞ</span></div>';
     return;
   }
-  $('shots-list').innerHTML = h.shots.map((s,i) => `
-    <div class="lrow" style="flex-direction:column;align-items:flex-start;cursor:pointer" onclick="editShot(${i})">
-      <div style="display:flex;align-items:center;gap:8px;width:100%;margin-bottom:4px">
+  $('shots-list').innerHTML = h.shots.map((s,i) => {
+    const shapes = (s.shapes && s.shapes.length) ? s.shapes.join('・') : (s.shape||'');
+    const traj = (s.traj && s.traj.length) ? s.traj.join('・') : '';
+    const misses = (s.misses && s.misses.length) ? s.misses.join('・') : (s.miss||'');
+    const result = misses || '普通';
+    const detail = [s.dir, shapes, traj, result, s.land, s.lie, s.remain?s.remain+'Y残':'', s.dist?s.dist+'Y飛':''].filter(Boolean).join(' · ');
+    const penaltyTag = s.penalty ? `<span style="display:inline-block;padding:2px 7px;background:#fce0e0;color:#791F1F;border-radius:4px;font-size:11px;font-weight:700;margin-left:4px">${s.penalty.type}${s.penalty.strokes?'(+'+s.penalty.strokes+')':''}</span>` : '';
+    return `<div class="lrow" style="flex-direction:column;align-items:flex-start;cursor:pointer" onclick="editShot(${i})">
+      <div style="display:flex;align-items:center;gap:8px;width:100%;margin-bottom:4px;flex-wrap:wrap">
         <span style="font-size:12px;color:var(--mt);min-width:28px">${i+1}打</span>
         <span style="font-size:15px;font-weight:700">${s.club||'−'}</span>
         ${s.eval?`<span class="badge b${s.eval}">${s.eval}</span>`:''}
+        ${penaltyTag}
         <span style="font-size:12px;color:var(--sub);margin-left:auto">編集 ›</span>
       </div>
       <div style="font-size:12px;color:var(--mt);padding-left:36px;line-height:1.6">
-        ${[s.dir,s.shape,s.miss,s.land,s.remain?s.remain+'Y残':'',s.dist?s.dist+'Y飛':''].filter(Boolean).join(' · ')}
+        ${detail}
         ${s.memo?'<br>'+s.memo:''}
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 
 function buildClubSelector() {
@@ -1739,16 +1922,104 @@ function buildClubSelector() {
   ).join('');
 }
 
+// 球筋（複数選択）
+function toggleShape(el) {
+  el.classList.toggle('on');
+}
+function getShapes() {
+  return [...document.querySelectorAll('#sel-shape .shape-btn.on')].map(b => b.dataset.v);
+}
+function setShapes(arr) {
+  document.querySelectorAll('#sel-shape .shape-btn').forEach(b => b.classList.remove('on'));
+  if(!arr) return;
+  (Array.isArray(arr)?arr:String(arr).split('・').filter(Boolean)).forEach(v => {
+    const b = document.querySelector(`#sel-shape .shape-btn[data-v="${v}"]`);
+    if(b) b.classList.add('on');
+  });
+}
+
+// 弾道（任意・複数）
+function toggleTraj(el) { el.classList.toggle('on'); }
+function getTraj() {
+  return [...document.querySelectorAll('#sel-traj .traj-btn.on')].map(b => b.dataset.v);
+}
+function setTraj(arr) {
+  document.querySelectorAll('#sel-traj .traj-btn').forEach(b => b.classList.remove('on'));
+  if(!arr) return;
+  (Array.isArray(arr)?arr:String(arr).split('・').filter(Boolean)).forEach(v => {
+    const b = document.querySelector(`#sel-traj .traj-btn[data-v="${v}"]`);
+    if(b) b.classList.add('on');
+  });
+}
+
+// ライ
+function pickLie(el) {
+  document.querySelectorAll('#sel-lie .lie-btn').forEach(b => b.classList.remove('on'));
+  el.classList.add('on');
+}
+function getLie() {
+  const el = document.querySelector('#sel-lie .lie-btn.on');
+  return el ? el.dataset.v : '';
+}
+function setLie(val) {
+  document.querySelectorAll('#sel-lie .lie-btn').forEach(b => {
+    if(b.dataset.v === val) b.classList.add('on');
+  });
+}
+function clearLie() {
+  document.querySelectorAll('#sel-lie .lie-btn').forEach(b => b.classList.remove('on'));
+}
+
+// ミス（複数選択・再タップ解除）
+function toggleMulti(el) {
+  el.classList.toggle('on');
+}
+function getMissList() {
+  return [...document.querySelectorAll('#sel-miss .tp.on')].map(b => b.textContent.trim());
+}
+function setMissList(arr) {
+  document.querySelectorAll('#sel-miss .tp').forEach(b => b.classList.remove('on'));
+  if(!arr) return;
+  (Array.isArray(arr)?arr:String(arr).split('・').filter(Boolean)).forEach(v => {
+    document.querySelectorAll('#sel-miss .tp').forEach(b => {
+      if(b.textContent.trim() === v) b.classList.add('on');
+    });
+  });
+}
+
+// 残りヤードを自動計算（前ショットの残り - 飛距離）。前ショットなければホール距離
+function autoRemainForNextShot() {
+  const h = hole();
+  if(!h) return 0;
+  if(h.shots.length === 0) return h.dist || 0;
+  const last = h.shots[h.shots.length-1];
+  const prevRemain = last.remain || h.dist || 0;
+  const lastDist = last.dist || 0;
+  const v = prevRemain - lastDist;
+  return v > 0 ? v : 0;
+}
+
 function openAdd() {
   D.editing = null;
   buildClubSelector();
-  clearSel('sel-club','sel-shape','sel-miss','sel-land','sel-lie');
+  clearSel('sel-club','sel-land');
+  setShapes([]);
+  setTraj([]);
+  setMissList([]);
+  clearLie();
   clearEvalSel();
   D.selDir = '';
   ['dir-left','dir-center','dir-right'].forEach(id => $(id).classList.remove('on'));
-  ['s-remain','s-dist','s-memo'].forEach(id => $(id).value='');
+  ['s-dist','s-memo'].forEach(id => $(id).value='');
   const h = hole();
+  // 残りヤード自動セット
+  const auto = autoRemainForNextShot();
+  $('s-remain').value = auto || '';
+  // 1打目はライ自動でフラット
+  if(h.shots.length === 0) setLie('フラット');
   $('add-ttl').textContent = `${h.num}H · ${h.shots.length+1}打目`;
+  // 画面トップにスクロール
+  setTimeout(() => { const body = document.querySelector('#s-add-shot .body'); if(body) body.scrollTop = 0; }, 50);
   go('s-add-shot');
 }
 
@@ -1756,15 +2027,22 @@ function editShot(i) {
   D.editing = i;
   buildClubSelector();
   const s = hole().shots[i];
-  clearSel('sel-club','sel-shape','sel-miss','sel-land','sel-lie');
+  clearSel('sel-club','sel-land');
+  setShapes([]);
+  setTraj([]);
+  setMissList([]);
+  clearLie();
   clearEvalSel();
   ['dir-left','dir-center','dir-right'].forEach(id => $(id).classList.remove('on'));
   if(s.club) setSel('sel-club',s.club);
   if(s.eval) setEvalSel(s.eval);
-  if(s.shape) setSel('sel-shape',s.shape);
-  if(s.miss) setSel('sel-miss',s.miss);
+  if(s.shapes) setShapes(s.shapes);
+  else if(s.shape) setShapes(s.shape); // 旧データ互換
+  if(s.traj) setTraj(s.traj);
+  if(s.misses) setMissList(s.misses);
+  else if(s.miss) setMissList(s.miss);
   if(s.land) setSel('sel-land',s.land);
-  if(s.lie) setSel('sel-lie',s.lie);
+  if(s.lie) setLie(s.lie);
   D.selDir = s.dir||'';
   if(s.dir==='左') $('dir-left').classList.add('on');
   else if(s.dir==='真ん中') $('dir-center').classList.add('on');
@@ -1774,49 +2052,258 @@ function editShot(i) {
   $('s-memo').value = s.memo||'';
   const h = hole();
   $('add-ttl').textContent = `${h.num}H · ${i+1}打目（編集）`;
+  setTimeout(() => { const body = document.querySelector('#s-add-shot .body'); if(body) body.scrollTop = 0; }, 50);
   go('s-add-shot');
 }
 
 function saveShot() {
   const shot = {
     club: getSel('sel-club'), dir: D.selDir,
-    eval: getEvalSel(), shape: getSel('sel-shape'),
-    miss: getSel('sel-miss'), land: getSel('sel-land'), lie: getSel('sel-lie'),
+    eval: getEvalSel(),
+    shapes: getShapes(),
+    traj: getTraj(),
+    misses: getMissList(),
+    land: getSel('sel-land'), lie: getLie(),
     remain: parseInt($('s-remain').value)||0,
     dist: parseInt($('s-dist').value)||0,
-    memo: $('s-memo').value
+    memo: $('s-memo').value,
+    penalty: null  // 後でペナルティ確認結果が入る
   };
   const h = hole();
-  if(D.editing!==null) h.shots[D.editing]=shot;
-  else h.shots.push(shot);
+  const isNew = D.editing === null;
+  if(D.editing!==null) {
+    // 既存のpenalty情報は保持
+    shot.penalty = h.shots[D.editing].penalty || null;
+    h.shots[D.editing]=shot;
+  } else {
+    h.shots.push(shot);
+  }
   sv();
+  // ペナルティ着地の場合は確認ダイアログを表示
+  const needsPenalty = isNew && ['OB','池ポチャ','ペナルティ'].includes(shot.land);
+  if(needsPenalty) {
+    showPenaltyDialog(shot, h.shots.length-1);
+    // ダイアログ後にback('s-shots')するのでここでは何もしない
+  } else {
+    back('s-shots');
+  }
+}
+
+// ===== ペナルティ確認ダイアログ =====
+function showPenaltyDialog(shot, shotIdx) {
+  const h = hole();
+  const isTeeShot = shotIdx === 0;
+  const overlay = $('penalty-overlay');
+  const sheet = $('penalty-sheet');
+  let opts = '';
+  let title = '';
+  let desc = '';
+  if(shot.land === 'OB') {
+    title = `🚧 OBの処理を選択`;
+    desc = `${shotIdx+1}打目のOB（${shot.club||'-'}）。ローカルルール等を考慮して処理を選んでください。`;
+    opts += `<div class="penalty-opt recommend" onclick="applyPenalty(${shotIdx},'打ち直し',1,false)">
+      <div class="pt">① 打ち直し（1打罰）</div>
+      <div class="pd">同じ場所から再ショット。次の打数 = ${shotIdx+1}+1+1 = <strong>${shotIdx+3}打目</strong></div></div>`;
+    opts += `<div class="penalty-opt" onclick="applyPenalty(${shotIdx},'プレイング4',2,false)">
+      <div class="pt">② プレイング4（特設ティー・2打罰）</div>
+      <div class="pd">特設ティーから次は <strong>4打目相当</strong> として打つ（ティーショット時）</div></div>`;
+    if(isTeeShot) {
+      opts += `<div class="penalty-opt" onclick="applyPenalty(${shotIdx},'プレイング3',1,false)">
+        <div class="pt">③ プレイング3（特設ティー・1打罰）</div>
+        <div class="pd">ティーショット限定。特設ティーから <strong>3打目</strong> として打つ</div></div>`;
+    }
+    opts += `<div class="penalty-opt" onclick="applyPenalty(${shotIdx},'罰なし',0,false)">
+      <div class="pt">④ 罰なしで継続</div>
+      <div class="pd">ローカルルールでセーフ等。罰打加算なし</div></div>`;
+  } else if(shot.land === '池ポチャ' || shot.land === 'ペナルティ') {
+    title = `💧 ${shot.land === '池ポチャ' ? '池ポチャ' : 'ペナルティエリア'}の処理`;
+    desc = `${shotIdx+1}打目で${shot.land}。次の処理を選んでください。`;
+    opts += `<div class="penalty-opt recommend" onclick="applyPenalty(${shotIdx},'1打罰でドロップ',1,false)">
+      <div class="pt">① 1打罰でドロップ</div>
+      <div class="pd">通常処理。次の打数 = ${shotIdx+1}+1+1 = <strong>${shotIdx+3}打目</strong></div></div>`;
+    opts += `<div class="penalty-opt" onclick="applyPenalty(${shotIdx},'打ち直し（1打罰）',1,false)">
+      <div class="pt">② 元の場所から打ち直し（1打罰）</div>
+      <div class="pd">前のショット位置に戻って打ち直し</div></div>`;
+    opts += `<div class="penalty-opt" onclick="applyPenalty(${shotIdx},'罰なしで継続',0,false)">
+      <div class="pt">③ ペナルティエリア内から罰なしで打つ</div>
+      <div class="pd">そのまま打てる場合。罰打加算なし</div></div>`;
+  }
+  sheet.innerHTML = `<h3>${title}</h3><div class="pdesc">${desc}</div>${opts}
+    <button class="btn btn-g" style="margin-top:8px" onclick="dismissPenalty()">あとで決める</button>`;
+  overlay.classList.add('show');
+}
+
+function applyPenalty(shotIdx, label, penalty, _) {
+  const h = hole();
+  if(!h || !h.shots[shotIdx]) { dismissPenalty(); return; }
+  h.shots[shotIdx].penalty = { type: label, strokes: penalty };
+  sv();
+  dismissPenalty();
   back('s-shots');
+}
+function dismissPenalty() {
+  $('penalty-overlay').classList.remove('show');
+}
+
+// ペナルティ罰打の合計を計算
+function totalPenaltyStrokes(holeObj) {
+  if(!holeObj || !holeObj.shots) return 0;
+  return holeObj.shots.reduce((sum,s) => sum + ((s.penalty && s.penalty.strokes) || 0), 0);
+}
+
+// ===== 結果画面（オン数/パット数自動計算・OK・パット詳細） =====
+let _resultState = { on: 0, putt: 0, ok: false };
+
+function pickOn(el, val) {
+  document.querySelectorAll('#sel-on .tp').forEach(b => b.classList.remove('on'));
+  el.classList.add('on');
+  $('r-on-other').value = '';
+  _resultState.on = val;
+  updateAutoTotal();
+}
+function pickPutt(el, val) {
+  document.querySelectorAll('#sel-putt .tp').forEach(b => b.classList.remove('on'));
+  el.classList.add('on');
+  $('r-putt-other').value = '';
+  _resultState.putt = val;
+  updateAutoTotal();
+  renderPuttDetails();
+}
+function onOnPuttOtherInput(which) {
+  if(which === 'on') {
+    document.querySelectorAll('#sel-on .tp').forEach(b => b.classList.remove('on'));
+    _resultState.on = parseInt($('r-on-other').value) || 0;
+  } else {
+    document.querySelectorAll('#sel-putt .tp').forEach(b => b.classList.remove('on'));
+    _resultState.putt = parseInt($('r-putt-other').value) || 0;
+    renderPuttDetails();
+  }
+  updateAutoTotal();
+}
+
+function updateAutoTotal() {
+  const h = hole(); if(!h) return;
+  const recordedShots = h.shots.length;
+  const penalty = totalPenaltyStrokes(h);
+  // 合計打数 = オン数 + パット数 + 罰打 (OKでも加算したまま=ユーザの記録した数値を尊重)
+  const total = (_resultState.on||0) + (_resultState.putt||0) + penalty;
+  $('r-rec-shots').textContent = recordedShots;
+  $('r-pen').textContent = penalty;
+  $('r-auto-total').textContent = total || '−';
+  // h-scoreが空なら自動値を表示用にplaceholderにセット（入力欄の値は触らない）
+  $('h-score').placeholder = total>0 ? `自動: ${total}` : '自動計算されます';
 }
 
 function chkScore() {
-  const h = hole();
-  const auto = h.shots.length;
+  const auto = parseInt($('r-auto-total').textContent) || 0;
   const inp = parseInt($('h-score').value);
-  $('auto-sc').textContent = auto;
-  $('score-warn').style.display = (inp && inp!==auto) ? 'block' : 'none';
+  $('score-warn').style.display = (inp && auto && inp!==auto) ? 'block' : 'none';
+}
+
+function renderPuttDetails() {
+  const n = _resultState.putt || 0;
+  const card = $('putt-detail-card');
+  if(n === 0) { card.style.display = 'none'; return; }
+  card.style.display = 'block';
+  let html = '';
+  for(let i=1;i<=n;i++) {
+    const existing = (_resultState.puttDetails && _resultState.puttDetails[i-1]) || {d:'', r:'', m:''};
+    html += `<div style="padding:10px;border:.5px solid var(--bd);border-radius:var(--rs);margin-bottom:8px;background:var(--bg)">
+      <div style="font-weight:700;font-size:13px;margin-bottom:6px">${i}パット目</div>
+      <label>距離（歩・任意）</label>
+      <input type="number" id="pd-d-${i}" placeholder="例: 8" value="${existing.d||''}" style="margin-bottom:6px">
+      <label>結果</label>
+      <div class="tgrp" id="pd-r-${i}" style="margin-bottom:6px">
+        ${['IN','ショート','オーバー','ミス','OK'].map(v => `<div class="tp ${existing.r===v?'on':''}" onclick="pick(this)">${v}</div>`).join('')}
+      </div>
+      <label>メモ（任意）</label>
+      <input type="text" id="pd-m-${i}" placeholder="ラインを読めなかった等" value="${existing.m||''}">
+    </div>`;
+  }
+  $('putt-details-list').innerHTML = html;
+}
+
+// 結果画面初期化（s-result表示時に呼ぶ）
+function initResultScreen() {
+  const h = hole(); if(!h) return;
+  // 既存値があれば復元、なければクリア
+  const r = h.result || {};
+  _resultState.on = r.on || 0;
+  _resultState.putt = r.putt || 0;
+  _resultState.ok = r.ok || false;
+  _resultState.puttDetails = r.puttDetails || [];
+  // UI反映
+  document.querySelectorAll('#sel-on .tp').forEach(b => b.classList.remove('on'));
+  document.querySelectorAll('#sel-putt .tp').forEach(b => b.classList.remove('on'));
+  $('r-on-other').value = '';
+  $('r-putt-other').value = '';
+  // 1〜7のボタンに該当値があれば点灯、それ以外はotherに
+  const onBtns = document.querySelectorAll('#sel-on .tp');
+  if(_resultState.on >= 1 && _resultState.on <= 6) {
+    onBtns[_resultState.on - 1] && onBtns[_resultState.on - 1].classList.add('on');
+  } else if(_resultState.on === 7) {
+    onBtns[6] && onBtns[6].classList.add('on');
+  } else if(_resultState.on > 7) {
+    $('r-on-other').value = _resultState.on;
+  }
+  const puttBtns = document.querySelectorAll('#sel-putt .tp');
+  if(_resultState.putt >= 0 && _resultState.putt <= 5) {
+    puttBtns[_resultState.putt] && puttBtns[_resultState.putt].classList.add('on');
+  } else if(_resultState.putt === 6) {
+    puttBtns[6] && puttBtns[6].classList.add('on');
+  } else if(_resultState.putt > 6) {
+    $('r-putt-other').value = _resultState.putt;
+  }
+  $('r-ok').checked = !!_resultState.ok;
+  $('h-score').value = r.score || '';
+  $('score-warn').style.display = 'none';
+  updateAutoTotal();
+  renderPuttDetails();
+  $('result-ttl').textContent = `${h.num}H 結果入力 (Par${h.par})`;
 }
 
 function saveResult() {
-  const h = hole();
+  const h = hole(); if(!h) { alert('ホール情報がありません'); return; }
+  const on = _resultState.on || 0;
+  const putt = _resultState.putt || 0;
+  const penalty = totalPenaltyStrokes(h);
+  const autoScore = on + putt + penalty;
+  const inputScore = parseInt($('h-score').value);
+  const score = inputScore || autoScore;
+
+  // ★バリデーション：オン数もパット数も0なら保存しない（誤操作防止）
+  if(on === 0 && putt === 0 && score === 0) {
+    if(!confirm('スコアが入力されていません。空のまま保存しますか？')) return;
+  }
+
+  // パット詳細を取得
+  const details = [];
+  for(let i=1;i<=putt;i++) {
+    const dEl = $(`pd-d-${i}`);
+    const rEl = $(`pd-r-${i}`);
+    const mEl = $(`pd-m-${i}`);
+    if(dEl) {
+      const onR = rEl ? rEl.querySelector('.tp.on') : null;
+      details.push({
+        d: dEl.value || '',
+        r: onR ? onR.textContent.trim() : '',
+        m: mEl ? mEl.value : ''
+      });
+    }
+  }
+
   h.result = {
-    on: parseInt(getSel('sel-on'))||0,
-    putt: parseInt(getSel('sel-putt'))||0,
-    score: parseInt($('h-score').value)||h.shots.length,
-    p1d: $('p1d').value, p1r: getSel('sel-p1'), p1m: $('p1m').value
+    on, putt, score,
+    ok: $('r-ok').checked,
+    puttDetails: details,
+    penalty: penalty  // 結果保存時点での罰打数を記録
   };
   sv();
-  clearSel('sel-on','sel-putt','sel-p1');
-  ['h-score','p1d','p1m'].forEach(id => $(id).value='');
-  $('score-warn').style.display='none';
-  const hs = rnd().holes;
-  const next = hs.findIndex((h2,i) => i > D.hi && !h2.result);
-  if(next !== -1) { openHole(next); }
-  else { back('s-holes'); }
+
+  // ★重要：自動で次ホールに進まない！ホール一覧に戻るだけ。
+  // _resultState もクリア
+  _resultState = { on: 0, putt: 0, ok: false, puttDetails: [] };
+  back('s-holes');
 }
 
 function showTab(id, el) {
@@ -1873,21 +2360,29 @@ function renderSummary() {
   $('t-detail').innerHTML = r.holes.map(h => {
     if(!h.shots.length&&!h.result) return '';
     return `<div class="card" style="margin-bottom:10px">
-      <div style="font-weight:700;margin-bottom:10px">${h.num}H Par${h.par}${h.dist?' · '+h.dist+'Y':''}${h.wind&&h.wind!='無風'?' · 風:'+h.wind:''}</div>
-      ${h.shots.map((s,i)=>`<div style="padding:8px 0;border-bottom:.5px solid var(--bd)">
-        <div style="display:flex;gap:8px;align-items:center">
-          <span style="color:var(--mt);font-size:12px;min-width:28px">${i+1}打</span>
-          <span style="font-weight:700">${s.club||'−'}</span>
-          ${s.eval?`<span class="badge b${s.eval}">${s.eval}</span>`:''}
-        </div>
-        <div style="font-size:12px;color:var(--mt);margin-top:2px;padding-left:36px">
-          ${[s.dir,s.shape,s.miss,s.land,s.remain?s.remain+'Y残':'',s.dist?s.dist+'Y飛':''].filter(Boolean).join(' · ')}
-          ${s.memo?'<br>'+s.memo:''}
-        </div>
-      </div>`).join('')}
+      <div style="font-weight:700;margin-bottom:10px">${h.num}H Par${h.par}${h.dist?' · '+h.dist+'Y':''}${h.wind&&h.wind!='無風'?' · 風:'+h.wind:''}${h.memo?' · '+h.memo:''}</div>
+      ${h.shots.map((s,i)=>{
+        const shapes = (s.shapes && s.shapes.length) ? s.shapes.join('・') : (s.shape||'');
+        const traj = (s.traj && s.traj.length) ? s.traj.join('・') : '';
+        const misses = (s.misses && s.misses.length) ? s.misses.join('・') : (s.miss||'');
+        const result = misses || '普通';
+        const penaltyTag = s.penalty ? `<span style="display:inline-block;padding:2px 7px;background:#fce0e0;color:#791F1F;border-radius:4px;font-size:11px;font-weight:700;margin-left:4px">${s.penalty.type}${s.penalty.strokes?'(+'+s.penalty.strokes+')':''}</span>` : '';
+        return `<div style="padding:8px 0;border-bottom:.5px solid var(--bd)">
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <span style="color:var(--mt);font-size:12px;min-width:28px">${i+1}打</span>
+            <span style="font-weight:700">${s.club||'−'}</span>
+            ${s.eval?`<span class="badge b${s.eval}">${s.eval}</span>`:''}
+            ${penaltyTag}
+          </div>
+          <div style="font-size:12px;color:var(--mt);margin-top:2px;padding-left:36px;line-height:1.6">
+            ${[s.dir, shapes, traj, result, s.land, s.lie, s.remain?s.remain+'Y残':'', s.dist?s.dist+'Y飛':''].filter(Boolean).join(' · ')}
+            ${s.memo?'<br>'+s.memo:''}
+          </div>
+        </div>`;
+      }).join('')}
       ${h.result?`<div style="background:var(--bg);border-radius:var(--rs);padding:10px 12px;margin-top:8px;font-size:13px">
-        ${h.result.on}オン${h.result.putt}パット → <strong>${h.result.score}打</strong>
-        ${h.result.p1d?' · 1パット目:'+h.result.p1d+'歩 '+h.result.p1r:''}
+        ${h.result.on||0}オン${h.result.putt||0}パット${h.result.penalty?' + 罰打'+h.result.penalty:''} → <strong>${h.result.score||0}打</strong>${h.result.ok?' (OK)':''}
+        ${h.result.puttDetails && h.result.puttDetails.length ? '<div style=\"font-size:11px;color:var(--mt);margin-top:4px\">' + h.result.puttDetails.map((p,j)=>p.d||p.r||p.m?`${j+1}P:${p.d?p.d+'歩 ':''}${p.r||''}${p.m?'('+p.m+')':''}`:'').filter(Boolean).join(' / ') + '</div>' : ''}
       </div>`:''}
     </div>`;
   }).join('');
@@ -1895,7 +2390,8 @@ function renderSummary() {
   const ec={},mc={},dc={左:0,真ん中:0,右:0};
   all.forEach(s=>{
     if(s.eval) ec[s.eval]=(ec[s.eval]||0)+1;
-    if(s.miss&&s.miss!=='ナイス'&&s.miss!=='クリーン') mc[s.miss]=(mc[s.miss]||0)+1;
+    const ms = s.misses || (s.miss ? [s.miss] : []);
+    ms.forEach(m => { if(m && m!=='ナイス' && m!=='クリーン') mc[m]=(mc[m]||0)+1; });
     if(s.dir) dc[s.dir]=(dc[s.dir]||0)+1;
   });
   const tot2=all.length||1;
@@ -1935,18 +2431,27 @@ function buildCopy() {
   t+=`スコア：${tot}（対Par${tot-par>=0?'+':''}${tot-par}）\n\n【各ホール詳細】\n`;
   r.holes.forEach(h=>{
     if(!h.shots.length&&!h.result) return;
-    t+=`\n▼ ${h.num}H Par${h.par}${h.dist?' '+h.dist+'Y':''}${h.wind&&h.wind!='無風'?' 風:'+h.wind:''}\n`;
+    t+=`\n▼ ${h.num}H Par${h.par}${h.dist?' '+h.dist+'Y':''}${h.wind&&h.wind!='無風'?' 風:'+h.wind:''}${h.memo?' ['+h.memo+']':''}\n`;
     h.shots.forEach((s,i)=>{
-      t+=`  ${i+1}打目：${s.club||'−'} / 方向:${s.dir||'−'} / ${[s.shape,s.miss].filter(Boolean).join('・')} / 着地:${s.land||'−'}`;
+      const shapes = (s.shapes && s.shapes.length) ? s.shapes.join('・') : (s.shape||'');
+      const traj = (s.traj && s.traj.length) ? s.traj.join('・') : '';
+      const misses = (s.misses && s.misses.length) ? s.misses.join('・') : (s.miss||'');
+      const result = misses || '普通';
+      t+=`  ${i+1}打目：${s.club||'−'} / 方向:${s.dir||'−'} / 球筋:${shapes||'−'}${traj?'('+traj+')':''} / 結果:${result} / 着地:${s.land||'−'}`;
+      if(s.lie) t+=` / ライ:${s.lie}`;
       if(s.remain) t+=` / 残${s.remain}Y`;
       if(s.dist) t+=` / 飛${s.dist}Y`;
       if(s.eval) t+=` [自己評価:${s.eval}]`;
+      if(s.penalty) t+=` 【${s.penalty.type}${s.penalty.strokes?'+'+s.penalty.strokes:''}】`;
       if(s.memo) t+=` (${s.memo})`;
       t+='\n';
     });
     if(h.result){
-      t+=`  結果：${h.result.on}オン${h.result.putt}パット → ${h.result.score}打`;
-      if(h.result.p1d) t+=` / 1パット目:${h.result.p1d}歩 ${h.result.p1r||''}${h.result.p1m?' ('+h.result.p1m+')':''}`;
+      t+=`  結果：${h.result.on||0}オン${h.result.putt||0}パット${h.result.penalty?' + 罰打'+h.result.penalty:''} → ${h.result.score||0}打${h.result.ok?' (OK)':''}`;
+      if(h.result.puttDetails && h.result.puttDetails.length) {
+        const pd = h.result.puttDetails.map((p,j) => p.d||p.r||p.m ? `${j+1}P:${p.d?p.d+'歩':''}${p.r?' '+p.r:''}${p.m?'('+p.m+')':''}` : '').filter(Boolean).join(' / ');
+        if(pd) t+=` / ${pd}`;
+      }
       t+='\n';
     }
   });
@@ -1954,7 +2459,8 @@ function buildCopy() {
   const ec={},mc={},dc={};
   all.forEach(s=>{
     if(s.eval) ec[s.eval]=(ec[s.eval]||0)+1;
-    if(s.miss&&s.miss!=='ナイス'&&s.miss!=='クリーン') mc[s.miss]=(mc[s.miss]||0)+1;
+    const ms = s.misses || (s.miss ? [s.miss] : []);
+    ms.forEach(m => { if(m && m!=='ナイス' && m!=='クリーン') mc[m]=(mc[m]||0)+1; });
     if(s.dir) dc[s.dir]=(dc[s.dir]||0)+1;
   });
   t+=`\n【全体傾向】\n評価：${Object.entries(ec).map(([k,v])=>k+':'+v+'回').join(' / ')}\n`;
